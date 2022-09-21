@@ -12,8 +12,8 @@
   if ($dados) {
 
     if ($dados['method'] === 'post') {
-    //   // $query_agendamentos = "INSERT INTO agendamentos (ID_HORARIO, ID_PET, ID_USUARIO_AG) VALUES(:id_horario, :id_pet, :id_usuario_ag)";
-    //   // $response_agendamento = $conn->prepare($query_agendamentos);
+    $query_agendamentos = "INSERT INTO agendamentos (ID_HORARIO, ID_PET, ID_USUARIO_AG) VALUES(:id_horario, :id_pet, :id_usuario_ag)";
+    $response_agendamento = $conn->prepare($query_agendamentos);
 
     //   // $response_agendamento -> bindParam(':id_horario', $dados['agendamento']['id_horario']);
     //   // $response_agendamento -> bindParam(':id_pet', $dados['agendamento']['id_pet']);
