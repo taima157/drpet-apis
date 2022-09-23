@@ -4,28 +4,35 @@
   header("Access-Control-Allow-Origin: *");
   header("Content-Type: application/json; charset= utf-8");
   header("Access-Control-Allow-Headers: *");
-  header("Access-Control-Allow-Methods: PUT");
+  header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE");
 
   $response_json = file_get_contents("php://input");
   $dados = json_decode($response_json, true);
 
   if ($dados) {
-    $query_login = "SELECT idusuario, nome, email FROM usuarios WHERE (email=:email AND senha=:senha)";
-    $cad_login = $conn->prepare($query_login);
+    $query_senha = "SELECT CAST(AES_DECRYPT(senha, 'techninja') as char) FROM usuarios WHERE (email=:email)";
+    $response_senha = $conn->prepare($query_senha);
+    $response_senha -> bindParam(':email', $dados['user']['email'], PDO::PARAM_STR);
+    
+    $response_senha -> execute();
+    $row_senha = $response_senha -> fetch(PDO::FETCH_ASSOC);
+    
+    if ($row_senha["CAST(AES_DECRYPT(senha, 'techninja') as char)"] === $dados['user']['senha']) {
+      $query_login = "SELECT nome, email, idusuario FROM usuarios WHERE (email=:email)";
+      $cad_login = $conn->prepare($query_login);
 
-    $cad_login->bindParam(':email', $dados['user']['email'], PDO::PARAM_STR);
-    $cad_login->bindParam(':senha', $dados['user']['senha'], PDO::PARAM_STR);
+      $cad_login -> bindParam(':email', $dados['user']['email'], PDO::PARAM_STR);
+      $cad_login->execute();
+      
+      if ($cad_login->rowCount() > 0) {
+        $row_login = $cad_login->fetchAll(PDO::FETCH_ASSOC);
 
-    $cad_login->execute();
-    $row_login = $cad_login->fetchAll(PDO::FETCH_ASSOC);
-
-    if ($cad_login->rowCount() > 0) {
-
-      $response = [
-        "erro" => false,
-        "mensagem" => "Login efetuado com sucesso.",
-        "user" => $row_login,
-      ];
+        $response = [
+          "erro" => false,
+          "mensagem" => "Login efetuado com sucesso.",
+          "user" => $row_login,
+        ];
+      }
     } else {
       $response = [
         "erro" => true,

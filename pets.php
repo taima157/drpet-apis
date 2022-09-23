@@ -9,20 +9,24 @@
   if ($_SERVER["REQUEST_METHOD"] === "GET") {
     $url = explode("/", $_SERVER["REQUEST_URI"]);
 
-    if ($url[3]) {
-      $query_pet = "SELECT * FROM pets WHERE idpet=:idpet";
-      $pet = $conn->prepare($query_pet);
+
+    if (count($url) > 3) {
+      if ($url[3] != " ") {
+        $query_pet = "SELECT * FROM pets WHERE idpet=:idpet";
+        $pet = $conn->prepare($query_pet);
+    
+        $pet -> bindParam(':idpet', $url[3], PDO::PARAM_INT);
+        $pet -> execute();
+    
+        if ($pet -> rowCount()) {
+          $response = $pet->fetch(PDO::FETCH_ASSOC);
+        } else {
+          $response = [
+            "erro" => true,
+            "mensagem" => "Pet não encontrado.",
+          ];
+        }
   
-      $pet -> bindParam(':idpet', $url[3], PDO::PARAM_INT);
-      $pet -> execute();
-  
-      if ($pet -> rowCount()) {
-        $response = $pet->fetch(PDO::FETCH_ASSOC);
-      } else {
-        $response = [
-          "erro" => true,
-          "mensagem" => "Pet não encontrado.",
-        ];
       }
 
     } else {

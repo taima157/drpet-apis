@@ -9,20 +9,22 @@
   if ($_SERVER["REQUEST_METHOD"] === "GET") {
     $url = explode("/", $_SERVER["REQUEST_URI"]);
 
-    if ($url[3]) {
-      $query_meuspets = "SELECT * FROM pets WHERE id_usuario=:id_usuario";
-      $meuspets = $conn -> prepare($query_meuspets);
-
-      $meuspets -> bindParam(":id_usuario", $url[3], PDO::PARAM_INT);
-      $meuspets -> execute();
-
-      if ($meuspets -> rowCount()) {
-        $response = $meuspets -> fetchAll(PDO::FETCH_ASSOC);
-      } else {
-        $response = [
-          "erro" => true,
-          "mensagem" => "Você não possuí pets registrados",
-        ];
+    if(count($url) > 3) {
+      if ($url[3]) {
+        $query_meuspets = "SELECT * FROM pets WHERE id_usuario=:id_usuario";
+        $meuspets = $conn -> prepare($query_meuspets);
+  
+        $meuspets -> bindParam(":id_usuario", $url[3], PDO::PARAM_INT);
+        $meuspets -> execute();
+  
+        if ($meuspets -> rowCount()) {
+          $response = $meuspets -> fetchAll(PDO::FETCH_ASSOC);
+        } else {
+          $response = [
+            "erro" => true,
+            "mensagem" => "Você não possuí pets registrados",
+          ];
+        }
       }
     } else {
       $response = [
