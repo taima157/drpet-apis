@@ -4,6 +4,7 @@
   header("Access-Control-Allow-Origin: *");
   header("Content-Type: application/json; charset= utf-8");
   header("Access-Control-Allow-Headers: *");
+  header("Access-Control-Allow-Methods: PUT");
 
   $response_json = file_get_contents("php://input");
   $dados = json_decode($response_json, true);

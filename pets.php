@@ -4,50 +4,131 @@
   header("Access-Control-Allow-Origin: *");
   header("Content-Type: application/json; charset= utf-8");
   header("Access-Control-Allow-Headers: *");
-  header("Access-Control-Allow-Methods: POST,GET,DELETE");
+  header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE");
 
-  $response_meusPets = file_get_contents("php://input");
-  $dados = json_decode($response_meusPets, true);
+  if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    $url = explode("/", $_SERVER["REQUEST_URI"]);
 
-  if ($dados) {
-    if ($dados['method'] === 'get') {
+    if ($url[3]) {
       $query_pet = "SELECT * FROM pets WHERE idpet=:idpet";
-      $pets = $conn->prepare($query_pet);
+      $pet = $conn->prepare($query_pet);
   
-      $pets->bindParam(':idpet', $dados['idpet'], PDO::PARAM_STR);
+      $pet -> bindParam(':idpet', $url[3], PDO::PARAM_INT);
+      $pet -> execute();
   
-      $pets->execute();
-  
-      if ($pets->rowCount() > 0) {
-        $row_pet = $pets->fetchAll(PDO::FETCH_ASSOC);
-  
-        $response = [
-          "erro" => false,
-          "mensagem" => "Pet encontrado.",
-          "pet" => $row_pet,
-        ];
+      if ($pet -> rowCount()) {
+        $response = $pet->fetch(PDO::FETCH_ASSOC);
       } else {
         $response = [
           "erro" => true,
           "mensagem" => "Pet não encontrado.",
-          "pet" => [],
+        ];
+      }
+
+    } else {
+      $query_pet = "SELECT * FROM pets";
+      $pets = $conn->prepare($query_pet);
+
+      $pets->execute();
+  
+      if ($pets->rowCount() > 0) {
+        $response = $pets->fetchAll(PDO::FETCH_ASSOC);
+      } else {
+        $response = [
+          "erro" => true,
+          "mensagem" => "Pet não encontrado.",
         ];
       }
     }
-  } else {
-    $query_animais = "SELECT * FROM pets";
-    $resposta_animais = $conn -> prepare($query_animais);
-    $resposta_animais -> execute();
-      
-    
-    if (($resposta_animais) and ($resposta_animais->rowCount() != 0)) {
-      $row_animais = $resposta_animais->fetchAll(PDO::FETCH_ASSOC);
-      $response = array("pets" => $row_animais);
+  }
+
+  if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $response_pets = file_get_contents("php://input");
+    $dados = json_decode($response_pets, true);
+
+    $query_cadastroPet = "INSERT INTO pets (nome, raca, especie, cor, sexo, id_usuario) VALUES (:nome, :raca, :especie, :cor, :sexo, :id_usuario)";
+    $cad_pet = $conn->prepare($query_cadastroPet);
+
+    $cad_pet->bindParam(':nome', $dados['pet']['nome'], PDO::PARAM_STR);
+    $cad_pet->bindParam(':raca', $dados['pet']['raca'], PDO::PARAM_STR);
+    $cad_pet->bindParam(':especie', $dados['pet']['especie'], PDO::PARAM_STR);
+    $cad_pet->bindParam(':cor', $dados['pet']['cor'], PDO::PARAM_STR);
+    $cad_pet->bindParam(':sexo', $dados['pet']['sexo'], PDO::PARAM_STR);
+    $cad_pet->bindParam(':id_usuario', $dados['pet']['id_usuario'], PDO::PARAM_STR);
+
+    $cad_pet->execute();
+
+    if ($cad_pet->rowCount()) {
+      $response = [
+        "erro" => false,
+        "mensagem" => "Pet cadastrado com sucesso."
+      ];
     } else {
-      $response = array("pets" => []);
+      $response = [
+        "erro" => true,
+        "mensagem" => "Pet não cadastrado."
+      ];
+    }
+  }
+
+  if ($_SERVER["REQUEST_METHOD"] === "PUT") {
+    $response_meusPets = file_get_contents("php://input");
+    $dados = json_decode($response_meusPets, true);
+
+    $query_editarPet = "UPDATE pets SET nome=:nome, raca=:raca, especie=:especie, cor=:cor, sexo=:sexo WHERE idpet=:idpet";
+
+    $edit_pet = $conn->prepare($query_editarPet);
+
+    $edit_pet->bindParam(':idpet', $dados['pet']['idpet'], PDO::PARAM_INT);
+    $edit_pet->bindParam(':nome', $dados['pet']['nome'], PDO::PARAM_STR);
+    $edit_pet->bindParam(':raca', $dados['pet']['raca'], PDO::PARAM_STR);
+    $edit_pet->bindParam(':especie', $dados['pet']['especie'], PDO::PARAM_STR);
+    $edit_pet->bindParam(':cor', $dados['pet']['cor'], PDO::PARAM_STR);
+    $edit_pet->bindParam(':sexo', $dados['pet']['sexo'], PDO::PARAM_STR);
+
+    $edit_pet->execute();
+
+    if ($edit_pet->rowCount()) {
+      $response = [
+        "erro" => false,
+        "mensagem" => "Pet editado com sucesso."
+      ];
+    } else {
+      $response = [
+        "erro" => true,
+        "mensagem" => "Não foi possivel editar o pet.",
+      ];
+    }
+  }
+  
+  if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
+    $url = explode("/", $_SERVER["REQUEST_URI"]);
+
+    if ($url[3]) {
+      $query_deletePet = "DELETE FROM pets WHERE idpet=:idpet";
+      $deletePet = $conn->prepare($query_deletePet);
+  
+      $deletePet->bindParam(':idpet', $url[3], PDO::PARAM_INT);
+      $deletePet->execute();
+  
+      if ($deletePet->rowCount()) {
+        $response = [
+          "erro" => false,
+          "mensagem" => "Pet foi deletado com sucesso.",
+        ];
+      } else {
+        $response = [
+          "erro" => true,
+          "mensagem" => "Pet não foi deletado.",
+        ];
+      }
+    } else {
+      $response = [
+        "erro" => true,
+        "mensagem" => "Pet não selecionado.",
+      ];
     }
   }
 
   http_response_code(200);
   echo json_encode($response);
-?>
