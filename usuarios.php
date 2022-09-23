@@ -11,9 +11,8 @@
     $url = explode("/", $_SERVER["REQUEST_URI"]);
 
     if (count($url) > 3) {
-
       if ($url[3] != " ") {
-        $query_usuarios = "SELECT * FROM usuarios WHERE idusuario=:idusuario";
+        $query_usuarios = "SELECT nome, email, CAST(AES_DECRYPT(senha, 'techninja') AS CHAR) AS senha, cpf_cnpj, adm, idusuario FROM usuarios WHERE idusuario=:idusuario";
         $response_usuarios = $conn -> prepare($query_usuarios);
     
         $response_usuarios -> bindParam(':idusuario', $url[3], PDO::PARAM_INT); 
@@ -27,10 +26,9 @@
             "mensagem" => "Usuário não encontrado."
           ];
         }
-    
       }
     } else {
-      $query_usuarios = "SELECT * FROM usuarios";
+      $query_usuarios = "SELECT *, CAST(AES_ENCRYPT(senha, 'techninja') AS CHAR) AS senha FROM usuarios";
       $resposta_usuarios = $conn -> prepare($query_usuarios);
       $resposta_usuarios -> execute();
       
@@ -52,12 +50,12 @@
     if ($dados) {
       $query_cadastro = "INSERT INTO usuarios (nome, email, senha, cpf_cnpj, adm) VALUES (:nome, :email, AES_ENCRYPT(:senha, 'techninja'), :cpf_cnpj, :adm)";
       $cad_usuario = $conn->prepare($query_cadastro);
-  
-      $cad_usuario->bindParam(':nome', $dados['user']['nome'], PDO::PARAM_STR);
-      $cad_usuario->bindParam(':email', $dados['user']['email'], PDO::PARAM_STR);
-      $cad_usuario->bindParam(':senha', $dados['user']['senha'], PDO::PARAM_STR);
-      $cad_usuario->bindParam(':cpf_cnpj', $dados['user']['cpf_cnpj'], PDO::PARAM_STR);
-      $cad_usuario->bindParam(':adm', $dados['user']['adm'], PDO::PARAM_BOOL);
+
+      $cad_usuario->bindParam(':nome', $dados['nome'], PDO::PARAM_STR);
+      $cad_usuario->bindParam(':email', $dados['email'], PDO::PARAM_STR);
+      $cad_usuario->bindParam(':senha', $dados['senha'], PDO::PARAM_STR);
+      $cad_usuario->bindParam(':cpf_cnpj', $dados['cpf_cnpj'], PDO::PARAM_STR);
+      $cad_usuario->bindParam(':adm', $dados['adm'], PDO::PARAM_BOOL);
   
       $cad_usuario->execute();
   
@@ -89,10 +87,10 @@
       $query_editar = "UPDATE usuarios SET nome=:nome, email=:email, senha=AES_ENCRYPT(:senha, 'techninja') WHERE idusuario=:idusuario";
       $edit_usuario = $conn->prepare($query_editar);
   
-      $edit_usuario->bindParam(':nome', $dados['user']['nome'], PDO::PARAM_STR);
-      $edit_usuario->bindParam(':idusuario', $dados['user']['idusuario'], PDO::PARAM_STR);
-      $edit_usuario->bindParam(':email', $dados['user']['email'], PDO::PARAM_STR);
-      $edit_usuario->bindParam(':senha', $dados['user']['senha'], PDO::PARAM_STR);
+      $edit_usuario->bindParam(':nome', $dados['nome'], PDO::PARAM_STR);
+      $edit_usuario->bindParam(':email', $dados['email'], PDO::PARAM_STR);
+      $edit_usuario->bindParam(':senha', $dados['senha'], PDO::PARAM_STR);
+      $edit_usuario->bindParam(':idusuario', $dados['idusuario'], PDO::PARAM_STR);
   
       $edit_usuario->execute();
   

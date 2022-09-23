@@ -10,18 +10,18 @@
   $dados = json_decode($response_json, true);
 
   if ($dados) {
-    $query_senha = "SELECT CAST(AES_DECRYPT(senha, 'techninja') as char) FROM usuarios WHERE (email=:email)";
+    $query_senha = "SELECT CAST(AES_DECRYPT(senha, 'techninja') AS CHAR) AS senha FROM usuarios WHERE (email=:email)";
     $response_senha = $conn->prepare($query_senha);
-    $response_senha -> bindParam(':email', $dados['user']['email'], PDO::PARAM_STR);
+    $response_senha -> bindParam(':email', $dados['email'], PDO::PARAM_STR);
     
     $response_senha -> execute();
     $row_senha = $response_senha -> fetch(PDO::FETCH_ASSOC);
     
-    if ($row_senha["CAST(AES_DECRYPT(senha, 'techninja') as char)"] === $dados['user']['senha']) {
+    if ($row_senha['senha'] === $dados['senha']) {
       $query_login = "SELECT nome, email, idusuario FROM usuarios WHERE (email=:email)";
       $cad_login = $conn->prepare($query_login);
 
-      $cad_login -> bindParam(':email', $dados['user']['email'], PDO::PARAM_STR);
+      $cad_login -> bindParam(':email', $dados['email'], PDO::PARAM_STR);
       $cad_login->execute();
       
       if ($cad_login->rowCount() > 0) {

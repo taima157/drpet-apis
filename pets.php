@@ -9,7 +9,6 @@
   if ($_SERVER["REQUEST_METHOD"] === "GET") {
     $url = explode("/", $_SERVER["REQUEST_URI"]);
 
-
     if (count($url) > 3) {
       if ($url[3] != " ") {
         $query_pet = "SELECT * FROM pets WHERE idpet=:idpet";
@@ -53,12 +52,12 @@
     $query_cadastroPet = "INSERT INTO pets (nome, raca, especie, cor, sexo, id_usuario) VALUES (:nome, :raca, :especie, :cor, :sexo, :id_usuario)";
     $cad_pet = $conn->prepare($query_cadastroPet);
 
-    $cad_pet->bindParam(':nome', $dados['pet']['nome'], PDO::PARAM_STR);
-    $cad_pet->bindParam(':raca', $dados['pet']['raca'], PDO::PARAM_STR);
-    $cad_pet->bindParam(':especie', $dados['pet']['especie'], PDO::PARAM_STR);
-    $cad_pet->bindParam(':cor', $dados['pet']['cor'], PDO::PARAM_STR);
-    $cad_pet->bindParam(':sexo', $dados['pet']['sexo'], PDO::PARAM_STR);
-    $cad_pet->bindParam(':id_usuario', $dados['pet']['id_usuario'], PDO::PARAM_STR);
+    $cad_pet->bindParam(':nome', $dados['nome'], PDO::PARAM_STR);
+    $cad_pet->bindParam(':raca', $dados['raca'], PDO::PARAM_STR);
+    $cad_pet->bindParam(':especie', $dados['especie'], PDO::PARAM_STR);
+    $cad_pet->bindParam(':cor', $dados['cor'], PDO::PARAM_STR);
+    $cad_pet->bindParam(':sexo', $dados['sexo'], PDO::PARAM_STR);
+    $cad_pet->bindParam(':id_usuario', $dados['id_usuario'], PDO::PARAM_STR);
 
     $cad_pet->execute();
 
@@ -83,12 +82,12 @@
 
     $edit_pet = $conn->prepare($query_editarPet);
 
-    $edit_pet->bindParam(':idpet', $dados['pet']['idpet'], PDO::PARAM_INT);
-    $edit_pet->bindParam(':nome', $dados['pet']['nome'], PDO::PARAM_STR);
-    $edit_pet->bindParam(':raca', $dados['pet']['raca'], PDO::PARAM_STR);
-    $edit_pet->bindParam(':especie', $dados['pet']['especie'], PDO::PARAM_STR);
-    $edit_pet->bindParam(':cor', $dados['pet']['cor'], PDO::PARAM_STR);
-    $edit_pet->bindParam(':sexo', $dados['pet']['sexo'], PDO::PARAM_STR);
+    $edit_pet->bindParam(':idpet', $dados['idpet'], PDO::PARAM_INT);
+    $edit_pet->bindParam(':nome', $dados['nome'], PDO::PARAM_STR);
+    $edit_pet->bindParam(':raca', $dados['raca'], PDO::PARAM_STR);
+    $edit_pet->bindParam(':especie', $dados['especie'], PDO::PARAM_STR);
+    $edit_pet->bindParam(':cor', $dados['cor'], PDO::PARAM_STR);
+    $edit_pet->bindParam(':sexo', $dados['sexo'], PDO::PARAM_STR);
 
     $edit_pet->execute();
 

@@ -73,8 +73,8 @@
     $query_horario = "INSERT INTO horarios (data, hora) VALUES(:data, :hora)";
     $response_horario = $conn->prepare($query_horario);
 
-    $response_horario->bindParam(':data', $dados['horario']['data'],  PDO::PARAM_STR);
-    $response_horario->bindParam(':hora', $dados['horario']['hora'],  PDO::PARAM_STR);
+    $response_horario->bindParam(':data', $dados['data'],  PDO::PARAM_STR);
+    $response_horario->bindParam(':hora', $dados['hora'],  PDO::PARAM_STR);
     $response_horario->execute();
 
     if ($response_horario->rowCount()) {
@@ -88,10 +88,6 @@
         "mensagem" => "Horario não adicionado",
       ];
     }
-  }
-
-  if ($_SERVER["REQUEST_METHOD"] === "PUT") {
-
   }
 
   http_response_code(200);
