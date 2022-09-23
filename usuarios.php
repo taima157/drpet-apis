@@ -81,6 +81,41 @@
     }
   }
 
+  if ($_SERVER["REQUEST_METHOD"] === "PUT") {
+    $response_json = file_get_contents("php://input");
+    $dados = json_decode($response_json, true);
+  
+    if ($dados) {
+      $query_editar = "UPDATE usuarios SET nome=:nome, email=:email, senha=AES_ENCRYPT(:senha, 'techninja') WHERE idusuario=:idusuario";
+      $edit_usuario = $conn->prepare($query_editar);
+  
+      $edit_usuario->bindParam(':nome', $dados['user']['nome'], PDO::PARAM_STR);
+      $edit_usuario->bindParam(':idusuario', $dados['user']['idusuario'], PDO::PARAM_STR);
+      $edit_usuario->bindParam(':email', $dados['user']['email'], PDO::PARAM_STR);
+      $edit_usuario->bindParam(':senha', $dados['user']['senha'], PDO::PARAM_STR);
+  
+      $edit_usuario->execute();
+  
+      if ($edit_usuario->rowCount()) {
+  
+        $response = [
+          "erro" => false,
+          "mensagem" => "Usuário editado com sucesso."
+        ];
+      } else {
+        $response = [
+          "erro" => true,
+          "mensagem" => "Usuário não editado."
+        ];
+      }
+    } else {
+      $response = [
+        "erro" => true,
+        "mensagem" => "Usuário não editado."
+      ];
+    }
+  }
+
   http_response_code(200);
   echo json_encode($response);
 ?>
