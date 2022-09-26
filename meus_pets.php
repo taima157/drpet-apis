@@ -22,7 +22,7 @@
         } else {
           $response = [
             "erro" => true,
-            "mensagem" => "Você não possuí pets registrados",
+            "mensagem" => "Você não possui pets registrados",
           ];
         }
       }

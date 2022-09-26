@@ -9,20 +9,22 @@
   if ($_SERVER["REQUEST_METHOD"] === "GET") {
     $url = explode("/", $_SERVER["REQUEST_URI"]);
 
-    if ($url[3]) {
-      $query_horarios = "SELECT * FROM horarios WHERE idhorario=:idhorario";
-      $resposta_horarios = $conn->prepare($query_horarios);
-
-      $resposta_horarios -> bindParam(":idhorario", $url[3], PDO::PARAM_INT);
-      $resposta_horarios->execute();
-
-      if ($resposta_horarios->rowCount()) {
-        $response = $resposta_horarios->fetch(PDO::FETCH_ASSOC);
-      } else {
-        $response = [
-          "erro" => false,
-          "mensagem" => "Horário não registrado."
-        ];
+    if (count($url) > 3) {
+      if ($url[3]) {
+        $query_horarios = "SELECT * FROM horarios WHERE idhorario=:idhorario";
+        $resposta_horarios = $conn->prepare($query_horarios);
+  
+        $resposta_horarios -> bindParam(":idhorario", $url[3], PDO::PARAM_INT);
+        $resposta_horarios->execute();
+  
+        if ($resposta_horarios->rowCount()) {
+          $response = $resposta_horarios->fetch(PDO::FETCH_ASSOC);
+        } else {
+          $response = [
+            "erro" => false,
+            "mensagem" => "Horário não registrado."
+          ];
+        }
       }
     } else {
       $parametros = explode("?", $url[2]);
