@@ -10,7 +10,7 @@
     $url = explode("/", $_SERVER["REQUEST_URI"]);
 
     if (count($url) > 3) {
-      $query_agendamentos = "SELECT a.idagendamento, u.nome, p.nome AS nome_pet, h.data, h.hora, status FROM agendamentos AS a INNER JOIN usuarios AS u ON u.idusuario = a.id_usuario_ag INNER JOIN pets AS p ON p.idpet = a.id_pet INNER JOIN horarios AS h ON h.idhorario = a.id_horario WHERE a.idagendamento=:idagendamento";
+      $query_agendamentos = "SELECT a.idagendamento, u.nome, u.idusuario, p.nome AS nome_pet, p.idpet, h.data, h.hora, status FROM agendamentos AS a INNER JOIN usuarios AS u ON u.idusuario = a.id_usuario_ag INNER JOIN pets AS p ON p.idpet = a.id_pet INNER JOIN horarios AS h ON h.idhorario = a.id_horario WHERE a.idagendamento=:idagendamento";
       $response_agendamentos = $conn -> prepare($query_agendamentos);
 
       $response_agendamentos -> bindParam(':idagendamento', $url[3], PDO::PARAM_INT);
@@ -25,18 +25,54 @@
         ];
       }
     } else {
-      $query_agendamentos = "SELECT a.idagendamento, u.nome, p.nome AS nome_pet, h.data, h.hora, status FROM agendamentos AS a INNER JOIN usuarios AS u ON u.idusuario = a.id_usuario_ag INNER JOIN pets AS p ON p.idpet = a.id_pet INNER JOIN horarios AS h ON h.idhorario = a.id_horario";
-      $response_agendamentos = $conn -> prepare($query_agendamentos);
-  
-      $response_agendamentos -> execute();
-  
-      if ($response_agendamentos -> rowCount()) {
-        $response = $response_agendamentos -> fetchAll(PDO::FETCH_ASSOC);
+      $parametros = explode("?", $url[2]);
+
+      if (count($parametros) > 1) {
+        if (strlen($parametros[1]) > 0) {
+          $id_usuario = explode("=", $parametros[1]);
+
+          if (count($id_usuario) > 0) {
+            $query_agendamentos = "SELECT a.idagendamento, u.nome, u.idusuario, p.nome AS nome_pet, p.idpet, h.data, h.hora, status FROM agendamentos AS a INNER JOIN usuarios AS u ON u.idusuario = a.id_usuario_ag INNER JOIN pets AS p ON p.idpet = a.id_pet INNER JOIN horarios AS h ON h.idhorario = a.id_horario WHERE a.id_usuario_ag=:id_usuario";
+    
+            $response_agendamentos = $conn -> prepare($query_agendamentos);
+    
+            $response_agendamentos -> bindParam(':id_usuario', $id_usuario[1], PDO::PARAM_INT);
+            $response_agendamentos -> execute();
+    
+            if ($response_agendamentos -> rowCount()) {
+              $response = $response_agendamentos -> fetchAll(PDO::FETCH_ASSOC);
+            } else {
+              $response = [
+                "erro" => true,
+                "mensagem" => "Não há nenhum agendamento marcado."
+              ];
+            }
+          } else {
+            $response = [
+              "erro" => true,
+              "mensagem" => "Não há nenhum agendamento marcado."
+            ];
+          }
+        } else {
+          $response = [
+            "erro" => true,
+            "mensagem" => "Não há nenhum agendamento marcado."
+          ];
+        }
       } else {
-        $response = [
-          "erro" => false,
-          "mensagem" => "Não há nenhum agendamento marcado."
-        ];
+        $query_agendamentos = "SELECT a.idagendamento, u.nome, u.idusuario, p.nome AS nome_pet, p.idpet, h.data, h.hora, status FROM agendamentos AS a INNER JOIN usuarios AS u ON u.idusuario = a.id_usuario_ag INNER JOIN pets AS p ON p.idpet = a.id_pet INNER JOIN horarios AS h ON h.idhorario = a.id_horario";
+        $response_agendamentos = $conn -> prepare($query_agendamentos);
+    
+        $response_agendamentos -> execute();
+    
+        if ($response_agendamentos -> rowCount()) {
+          $response = $response_agendamentos -> fetchAll(PDO::FETCH_ASSOC);
+        } else {
+          $response = [
+            "erro" => true,
+            "mensagem" => "Não há nenhum agendamento marcado.",
+          ];
+        }
       }
     }
   }
@@ -91,8 +127,6 @@
       ];
     }
   }
-
-  
 
   http_response_code(200);
   echo json_encode($response);

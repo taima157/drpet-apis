@@ -12,7 +12,7 @@
 
     if (count($url) > 3) {
       if ($url[3] != " ") {
-        $query_usuarios = "SELECT nome, email, CAST(AES_DECRYPT(senha, 'techninja') AS CHAR) AS senha, cpf_cnpj, adm, idusuario FROM usuarios WHERE idusuario=:idusuario";
+        $query_usuarios = "SELECT *, CAST(AES_ENCRYPT(senha, 'techninja') AS CHAR) AS senha FROM usuarios WHERE idusuario=:idusuario";
         $response_usuarios = $conn -> prepare($query_usuarios);
     
         $response_usuarios -> bindParam(':idusuario', $url[3], PDO::PARAM_INT); 
